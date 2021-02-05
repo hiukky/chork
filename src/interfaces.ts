@@ -11,4 +11,6 @@ export type IDataTypes =
   | 'map'
   | 'date'
 
+export type IDataTypesObject<V> = Record<keyof V, IDataTypes>
+
 export type Idle = unknown | any

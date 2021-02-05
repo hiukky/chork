@@ -9,11 +9,10 @@ export const check = <V>(value: V): IDataTypes => {
   let checkedValue = 'null'
 
   try {
-    if (typeof value === 'undefined') {
-      checkedValue = 'undefined'
-    } else {
-      checkedValue = (value as Idle).constructor.name.toLowerCase()
-    }
+    checkedValue =
+      typeof value === 'undefined'
+        ? 'undefined'
+        : (value as Idle).constructor.name.toLowerCase()
   } catch {}
 
   return checkedValue as IDataTypes
