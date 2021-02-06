@@ -74,4 +74,19 @@ describe('Check', () => {
       expect(check(new Date())).toBe('date')
     })
   })
+
+  describe('Function', () => {
+    it('should return "function"', () => {
+      expect(check(function foo() {})).toBe('function')
+    })
+
+    it('should return "function"', () => {
+      expect(check(() => {})).toBe('function')
+    })
+
+    it('should return "function"', () => {
+      var foo = function () {}
+      expect(check(foo)).toBe('function')
+    })
+  })
 })

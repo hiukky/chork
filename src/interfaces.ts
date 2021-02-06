@@ -10,6 +10,7 @@ export type IDataTypes =
   | 'array'
   | 'map'
   | 'date'
+  | 'function'
 
 export type IDataTypesObject<V> = Record<keyof V, IDataTypes>
 
