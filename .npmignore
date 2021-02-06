@@ -1,6 +1,5 @@
 node_modules
 coverage
-.github
 __tests__
 lib
 .eslintrc.json

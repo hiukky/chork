@@ -48,6 +48,13 @@
     "ts-node-dev": "^1.1.1",
     "typescript": "^4.1.3"
   },
+  "size-limit": [
+    {
+      "path": "dist/index.js",
+      "import": "{ createStore }",
+      "limit": "500 ms"
+    }
+  ],
   "files": [
     "dist"
   ],
