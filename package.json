@@ -1,8 +1,9 @@
 {
   "name": "chork",
-  "version": "0.1.0-alpha.5",
+  "version": "0.1.0-alpha.7",
   "description": "Minimalist JS data type checking utility.",
   "main": "dist/index.js",
+  "module": "dist/index.js",
   "typings": "dist/index.d.ts",
   "author": {
     "name": "Romullo",
