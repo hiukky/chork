@@ -25,7 +25,7 @@
 
 <div align="center">
   <a href="https://www.npmjs.com/package/chork">
-   <img alt="npm bundle size" src="https://img.shields.io/bundlephobia/minzip/chork?color=23d18c&style=for-the-badge&colorA=1F2630&label=size">
+   <img alt="npm bundle size" src="https://img.shields.io/bundlephobia/minzip/chork?color=1F2630&style=for-the-badge&colorA=1F2630&label=size">
   </a>
 </div>
 
