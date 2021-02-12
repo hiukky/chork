@@ -3,7 +3,9 @@ import { IDataTypesObject, Idle } from '../src/interfaces'
 
 /**
  * @function createContext
+ *
  * @desc Creates a context for the current status check.
+ *
  * @param values
  */
 const createContext = <V>(

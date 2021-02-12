@@ -2,7 +2,9 @@ import { IDataTypes, Idle } from '../src/interfaces'
 
 /**
  * @function check
+ *
  * @desc Returns the actual type of the value (s) entered.
+ *
  * @param value
  */
 export const check = <V>(value: V): IDataTypes => {

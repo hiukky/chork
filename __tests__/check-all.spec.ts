@@ -3,7 +3,7 @@ import { checkAll } from '../lib/checkAll'
 describe('CheckAll', () => {
   it('should create a context for values [1, true, "bar"]', () => {
     expect(checkAll([1, true, 'bar'])).toEqual({
-      '1': 'number',
+      1: 'number',
       true: 'boolean',
       bar: 'string',
     })

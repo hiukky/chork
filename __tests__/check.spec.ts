@@ -77,7 +77,7 @@ describe('Check', () => {
 
   describe('Function', () => {
     it('should return "function"', () => {
-      expect(check(function foo() {})).toBe('function')
+      expect(check(() => {})).toBe('function')
     })
 
     it('should return "function"', () => {
@@ -85,7 +85,7 @@ describe('Check', () => {
     })
 
     it('should return "function"', () => {
-      var foo = function () {}
+      const foo = function () {}
       expect(check(foo)).toBe('function')
     })
   })
