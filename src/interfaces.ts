@@ -1,17 +1,18 @@
-export type IDataTypes =
-  | 'string'
-  | 'number'
-  | 'bigint'
-  | 'boolean'
-  | 'undefined'
-  | 'symbol'
-  | 'null'
-  | 'object'
-  | 'array'
-  | 'map'
-  | 'date'
-  | 'function'
+import { PRIMITIVES } from './constants'
 
-export type IDataTypesObject<V> = Record<keyof V, IDataTypes>
+export interface Constructor extends Function {
+  new (...args: any[]): {}
+}
+
+export type DataTypes = keyof typeof PRIMITIVES
+
+export type Constructors =
+  | typeof PRIMITIVES[Exclude<
+      DataTypes,
+      'symbol' | 'bigint' | 'undefined' | 'null'
+    >]
+  | Constructor
+
+export type DataTypesOf<V> = Record<keyof V, DataTypes>
 
 export type Idle = unknown | any

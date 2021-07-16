@@ -1,13 +1,6 @@
 import { check } from './check'
-import { IDataTypesObject, Idle } from '../src/interfaces'
+import { DataTypesOf, Idle } from '../src/interfaces'
 
-/**
- * @function createContext
- *
- * @desc Creates a context for the current status check.
- *
- * @param values
- */
 const createContext = <V>(
   values: V,
 ): Record<'type' | 'data' | 'schema' | 'payload', Idle> => ({
@@ -17,12 +10,7 @@ const createContext = <V>(
   data: values,
 })
 
-/**
- * @function checkAll
- * @desc Returns the type for all values entered.
- * @param values
- */
-export const checkAll = <V>(values: V): IDataTypesObject<V> => {
+export const checkAll = <V>(values: V): DataTypesOf<V> => {
   let { payload, schema, type, data } = createContext(values)
 
   if (type === 'array') {

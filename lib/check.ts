@@ -1,13 +1,6 @@
-import { IDataTypes, Idle } from '../src/interfaces'
+import { DataTypes, Idle } from '../src/interfaces'
 
-/**
- * @function check
- *
- * @desc Returns the actual type of the value (s) entered.
- *
- * @param value
- */
-export const check = <V>(value: V): IDataTypes => {
+export const check = <V>(value: V): DataTypes => {
   let checkedValue = 'null'
 
   try {
@@ -17,5 +10,5 @@ export const check = <V>(value: V): IDataTypes => {
         : (value as Idle).constructor.name.toLowerCase()
   } catch {}
 
-  return checkedValue as IDataTypes
+  return checkedValue as DataTypes
 }
