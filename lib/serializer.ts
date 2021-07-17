@@ -2,19 +2,19 @@ import { Constructors } from '../src/interfaces'
 import { PRIMITIVES } from '../src/constants'
 import { check } from './check'
 
-export class Serializer {
+class Serializer {
   private parseToPrimitive<V, P = any>(value: V): P {
-    let parsed: any
+    let deserialized: any
 
     try {
-      parsed = JSON.parse(
+      deserialized = JSON.parse(
         check(value) === 'string' ? String(value) : JSON.stringify(value),
       )
     } catch {
-      parsed = String(value)
+      deserialized = String(value)
     }
 
-    return parsed
+    return deserialized
   }
 
   private getPrimitive<V>(value: V): Constructors {
@@ -56,37 +56,53 @@ export class Serializer {
     )
   }
 
-  public deserialize<V extends unknown, C extends Constructors>(
+  public serialize = <V extends unknown>(value: V): string =>
+    JSON.stringify(this.deserialize(value))
+
+  public deserialize = <V extends unknown, C extends Constructors>(
     value: unknown,
     Type: C = {} as C,
-  ): V {
-    let parsed = this.parseToPrimitive(value)
+  ): V => {
+    let deserialized = this.parseToPrimitive(value)
 
     const types = this.getTypes(value, Type)
 
     switch (types.target) {
       case 'array':
-        parsed = this.toArray(parsed)
+        deserialized = this.toArray(deserialized)
         break
       case 'object':
-        parsed = this.toObject(parsed)
+        deserialized = this.toObject(deserialized)
         break
       case 'undefined':
       default:
         if ([value, types.source].includes('undefined')) {
-          parsed = undefined
+          deserialized = undefined
         } else if ([value, types.source].includes('null')) {
-          parsed = null
+          deserialized = null
         } else if (['array', 'object'].includes(types.source)) {
           if (!this.isPrimitiveTarget(Type)) {
-            parsed = Object.assign(Type?.prototype ? new Type() : {}, parsed)
+            deserialized = Object.assign(
+              Type?.prototype ? new Type() : {},
+              deserialized,
+            )
           } else {
-            parsed = this.deserialize(parsed, this.getPrimitive(parsed))
+            deserialized = this.deserialize(
+              deserialized,
+              this.getPrimitive(deserialized),
+            )
           }
+        } else if (types.source !== check(deserialized)) {
+          deserialized = this.deserialize(
+            deserialized,
+            this.getPrimitive(deserialized),
+          )
         }
         break
     }
 
-    return parsed
+    return deserialized
   }
 }
+
+export const { deserialize, serialize } = new Serializer()
