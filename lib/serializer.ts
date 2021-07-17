@@ -1,4 +1,4 @@
-import { Constructors, DeserializerOptions } from '../src/interfaces'
+import { Constructors, DeserializerOptions, Idle } from '../src/interfaces'
 import { PRIMITIVES } from '../src/constants'
 import { check } from './check'
 import { SerializerError } from './exception'
@@ -11,11 +11,11 @@ class Serializer {
     }
   }
 
-  private isDate<V extends unknown>(value: V): boolean {
+  private isDate<V extends Idle>(value: V): boolean {
     return !Number.isNaN(Date.parse(String(value)))
   }
 
-  private isTime<V extends unknown>(value: V): boolean {
+  private isTime<V extends Idle>(value: V): boolean {
     return /^\d{2}:\d{2}:\d{2}\sGMT[-+]\d{4}.+$/.test(String(value))
   }
 
@@ -31,13 +31,13 @@ class Serializer {
     )
   }
 
-  private toArray<V extends Array<any>>(value: V): V {
+  private toArray<V extends Array<Idle>>(value: V): V {
     return Array.from(value).map(item =>
       this.deserialize(item, { type: this.getPrimitiveOf(item) }),
     ) as V
   }
 
-  private toObject<V extends Record<string, any>>(value: V): V {
+  private toObject<V extends Record<string, Idle>>(value: V): V {
     const source: V = { ...value }
 
     Object.keys(source).forEach((key: keyof V) => {
@@ -49,11 +49,11 @@ class Serializer {
     return source as V
   }
 
-  private toDate<V extends any>(value: V): V {
-    return new Date(String(value)) as V
+  private toDate<V extends Idle>(value: V): V {
+    return value instanceof Date ? value : (new Date(String(value)) as V)
   }
 
-  private timeToDateTime<V extends any>(value: V): V {
+  private timeToDateTime<V extends Idle>(value: V): V {
     return new Date(
       new Date(0).toUTCString().replace(/\d{2}:\d{2}:\d{2}.+/, String(value)),
     ) as V
@@ -63,15 +63,15 @@ class Serializer {
     return PRIMITIVES[check(value)] as Constructors
   }
 
-  private valueOf<V, P = any>(value: V, strict: boolean): P {
-    let deserialized: any
+  private valueOf<V, P = Idle>(value: V, strict: boolean): P {
+    let deserialized: Idle
 
     try {
       deserialized = JSON.parse(
         check(value) === 'string' ? String(value) : JSON.stringify(value),
       )
     } catch (e) {
-      let error = new SerializerError(e as Error, {
+      const error = new SerializerError(e as Error, {
         details: 'Error parsing value',
         value: String(value),
       })
@@ -90,11 +90,11 @@ class Serializer {
     return deserialized
   }
 
-  public serialize = <V extends unknown>(value: V): string =>
+  public serialize = <V extends Idle>(value: V): string =>
     JSON.stringify(this.deserialize(value))
 
-  public deserialize = <V extends unknown>(
-    value: unknown,
+  public deserialize = <V extends Idle>(
+    value: Idle,
     options?: DeserializerOptions,
   ): V => {
     const { strict, type: Type } = { ...this.$options, ...options }
