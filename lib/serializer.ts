@@ -56,12 +56,16 @@ class Serializer {
     )
   }
 
+  private isSerializable<S extends string, V>(source: S, value: V): boolean {
+    return ['array', 'object'].includes(source) || source !== check(value)
+  }
+
   public serialize = <V extends unknown>(value: V): string =>
     JSON.stringify(this.deserialize(value))
 
-  public deserialize = <V extends unknown, C extends Constructors>(
+  public deserialize = <V extends unknown>(
     value: unknown,
-    Type: C = {} as C,
+    Type: Constructors = {} as Constructors,
   ): V => {
     let deserialized = this.parseToPrimitive(value)
 
@@ -69,35 +73,30 @@ class Serializer {
 
     switch (types.target) {
       case 'array':
-        deserialized = this.toArray(deserialized)
-        break
+        return this.toArray(deserialized)
+
       case 'object':
-        deserialized = this.toObject(deserialized)
-        break
+        return this.toObject(deserialized)
+
       case 'undefined':
+      case 'null':
       default:
-        if ([value, types.source].includes('undefined')) {
-          deserialized = undefined
-        } else if ([value, types.source].includes('null')) {
-          deserialized = null
-        } else if (['array', 'object'].includes(types.source)) {
-          if (!this.isPrimitiveTarget(Type)) {
-            deserialized = Object.assign(
-              Type?.prototype ? new Type() : {},
-              deserialized,
-            )
-          } else {
-            deserialized = this.deserialize(
-              deserialized,
-              this.getPrimitive(deserialized),
-            )
-          }
-        } else if (types.source !== check(deserialized)) {
-          deserialized = this.deserialize(
-            deserialized,
-            this.getPrimitive(deserialized),
-          )
+        if (!this.isPrimitiveTarget(Type)) {
+          return Object.assign(new Type(), deserialized)
         }
+
+        if (this.isSerializable(types.source, deserialized)) {
+          return this.deserialize(deserialized, this.getPrimitive(deserialized))
+        }
+
+        if ([value, types.source].includes('undefined')) {
+          return undefined as V
+        }
+
+        if ([value, types.source].includes('null')) {
+          return null as V
+        }
+
         break
     }
 

@@ -139,4 +139,30 @@ describe('Deserializer', () => {
       expect(check(deserialized)).toBe('object')
     })
   })
+
+  describe('DTO', () => {
+    class DTO {
+      a: number
+
+      b: string
+
+      c: boolean
+    }
+
+    it('Must deserialize a string JSON to an Object', () => {
+      const deserialized = deserialize<DTO>('{"a":1,"b":"A","c":true}', DTO)
+
+      expect(deserialized).toEqual({ a: 1, b: 'A', c: true })
+      expect(check(deserialized)).toBe('dto')
+      expect(deserialized).toBeInstanceOf(DTO)
+    })
+
+    it('Must deserialize a JSON to an Object', () => {
+      const deserialized = deserialize<DTO>('{"a":1,"b":"A","c":true}', DTO)
+
+      expect(deserialized).toEqual({ a: 1, b: 'A', c: true })
+      expect(check(deserialized)).toBe('dto')
+      expect(deserialized).toBeInstanceOf(DTO)
+    })
+  })
 })
