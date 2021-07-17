@@ -16,3 +16,8 @@ export type Constructors =
 export type DataTypesOf<V> = Record<keyof V, DataTypes>
 
 export type Idle = unknown | any
+
+export type DeserializerOptions = {
+  type: Constructors
+  strict?: boolean
+}

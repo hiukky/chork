@@ -1,8 +1,16 @@
-import { Constructors } from '../src/interfaces'
+import { Constructors, DeserializerOptions } from '../src/interfaces'
 import { PRIMITIVES } from '../src/constants'
 import { check } from './check'
+import { SerializerError } from './exception'
 
 class Serializer {
+  private get $options(): Required<DeserializerOptions> {
+    return {
+      type: {} as Constructors,
+      strict: true,
+    }
+  }
+
   private isDate<V extends unknown>(value: V): boolean {
     return !Number.isNaN(Date.parse(String(value)))
   }
@@ -25,7 +33,7 @@ class Serializer {
 
   private toArray<V extends Array<any>>(value: V): V {
     return Array.from(value).map(item =>
-      this.deserialize(item, this.getPrimitive(item)),
+      this.deserialize(item, { type: this.getPrimitiveOf(item) }),
     ) as V
   }
 
@@ -33,10 +41,9 @@ class Serializer {
     const source: V = { ...value }
 
     Object.keys(source).forEach((key: keyof V) => {
-      source[key] = this.deserialize(
-        source[key],
-        this.getPrimitive(source[key]),
-      )
+      source[key] = this.deserialize(source[key], {
+        type: this.getPrimitiveOf(source[key]),
+      })
     })
 
     return source as V
@@ -52,22 +59,29 @@ class Serializer {
     ) as V
   }
 
-  private getPrimitive<V>(value: V): Constructors {
+  private getPrimitiveOf<V>(value: V): Constructors {
     return PRIMITIVES[check(value)] as Constructors
   }
 
-  private valueOf<V, P = any>(value: V): P {
+  private valueOf<V, P = any>(value: V, strict: boolean): P {
     let deserialized: any
 
     try {
       deserialized = JSON.parse(
         check(value) === 'string' ? String(value) : JSON.stringify(value),
       )
-    } catch {
+    } catch (e) {
+      let error = new SerializerError(e as Error, {
+        details: 'Error parsing value',
+        value: String(value),
+      })
+
       if (this.isDate(value)) {
         deserialized = this.toDate(value)
       } else if (this.isTime(value)) {
         deserialized = this.timeToDateTime(value)
+      } else if (strict && error.getErrorPosition > 1) {
+        throw error
       } else {
         deserialized = String(value)
       }
@@ -81,9 +95,11 @@ class Serializer {
 
   public deserialize = <V extends unknown>(
     value: unknown,
-    Type: Constructors = {} as Constructors,
+    options?: DeserializerOptions,
   ): V => {
-    let deserialized = this.valueOf(value)
+    const { strict, type: Type } = { ...this.$options, ...options }
+
+    let deserialized = this.valueOf(value, strict)
 
     const types = {
       source: check(value),
@@ -108,7 +124,9 @@ class Serializer {
         }
 
         if (this.isSerializable(types.source, deserialized)) {
-          return this.deserialize(deserialized, this.getPrimitive(deserialized))
+          return this.deserialize(deserialized, {
+            type: this.getPrimitiveOf(deserialized),
+          })
         }
 
         if ([value, types.source].includes('undefined')) {

@@ -209,7 +209,9 @@ describe('Deserializer', () => {
     }
 
     it('Must deserialize a string JSON to an Class instance.', () => {
-      const deserialized = deserialize<DTO>('{"a":1,"b":"A","c":true}', DTO)
+      const deserialized = deserialize<DTO>('{"a":1,"b":"A","c":true}', {
+        type: DTO,
+      })
 
       expect(deserialized).toEqual({ a: 1, b: 'A', c: true })
       expect(check(deserialized)).toBe('dto')
@@ -217,7 +219,9 @@ describe('Deserializer', () => {
     })
 
     it('Must deserialize a JSON to an Class instance.', () => {
-      const deserialized = deserialize<DTO>('{"a":1,"b":"A","c":true}', DTO)
+      const deserialized = deserialize<DTO>('{"a":1,"b":"A","c":true}', {
+        type: DTO,
+      })
 
       expect(deserialized).toEqual({ a: 1, b: 'A', c: true })
       expect(check(deserialized)).toBe('dto')
