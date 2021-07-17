@@ -16,7 +16,7 @@ class Serializer {
   }
 
   private isTime<V extends unknown>(value: V): boolean {
-    return /^\d{2}:\d{2}:\d{2}\sGMT-\d{4}.+$/.test(String(value))
+    return /^\d{2}:\d{2}:\d{2}\sGMT[-+]\d{4}.+$/.test(String(value))
   }
 
   private isPrimitiveTarget(type?: Constructors): boolean {
