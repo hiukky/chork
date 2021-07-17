@@ -140,7 +140,66 @@ describe('Deserializer', () => {
     })
   })
 
-  describe('DTO', () => {
+  describe('Date', () => {
+    const date = new Date()
+    const dateFromString = new Date(date.toString())
+
+    it('Must deserialize a date to an instance of Date.', () => {
+      const deserialized = deserialize(date)
+
+      expect(deserialized).toEqual(date)
+      expect(check(deserialized)).toBe('date')
+      expect(deserialized).toBeInstanceOf(Date)
+    })
+
+    it('Must deserialize a date string to an instance of Date.', () => {
+      const deserialized = deserialize(date.toString())
+
+      expect(deserialized).toEqual(dateFromString)
+      expect(check(deserialized)).toBe('date')
+      expect(deserialized).toBeInstanceOf(Date)
+    })
+
+    it('Must deserialize a date ISO string to an instance of Date.', () => {
+      const deserialized = deserialize(date.toISOString())
+
+      expect(deserialized).toEqual(date)
+      expect(check(deserialized)).toBe('date')
+      expect(deserialized).toBeInstanceOf(Date)
+    })
+
+    it('Must deserialize a date UTC string to an instance of Date.', () => {
+      const deserialized = deserialize(date.toUTCString())
+
+      expect(deserialized).toEqual(dateFromString)
+      expect(check(deserialized)).toBe('date')
+      expect(deserialized).toBeInstanceOf(Date)
+    })
+
+    it('Must deserialize a date Locale string to an instance of Date.', () => {
+      const deserialized = deserialize(date.toLocaleString())
+
+      expect(deserialized).toEqual(dateFromString)
+      expect(check(deserialized)).toBe('date')
+      expect(deserialized).toBeInstanceOf(Date)
+    })
+
+    it('Must deserialize a Time string to an instance of Date.', () => {
+      const deserialized = deserialize(date.toTimeString())
+
+      expect(deserialized).toEqual(
+        new Date(
+          dateFromString
+            .toISOString()
+            .replace(/\d{4}-\d{2}-\d{2}/, '1970-01-01'),
+        ),
+      )
+      expect(check(deserialized)).toBe('date')
+      expect(deserialized).toBeInstanceOf(Date)
+    })
+  })
+
+  describe('Class instance', () => {
     class DTO {
       a: number
 
@@ -149,7 +208,7 @@ describe('Deserializer', () => {
       c: boolean
     }
 
-    it('Must deserialize a string JSON to an Object', () => {
+    it('Must deserialize a string JSON to an Class instance.', () => {
       const deserialized = deserialize<DTO>('{"a":1,"b":"A","c":true}', DTO)
 
       expect(deserialized).toEqual({ a: 1, b: 'A', c: true })
@@ -157,7 +216,7 @@ describe('Deserializer', () => {
       expect(deserialized).toBeInstanceOf(DTO)
     })
 
-    it('Must deserialize a JSON to an Object', () => {
+    it('Must deserialize a JSON to an Class instance.', () => {
       const deserialized = deserialize<DTO>('{"a":1,"b":"A","c":true}', DTO)
 
       expect(deserialized).toEqual({ a: 1, b: 'A', c: true })

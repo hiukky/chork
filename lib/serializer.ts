@@ -3,32 +3,24 @@ import { PRIMITIVES } from '../src/constants'
 import { check } from './check'
 
 class Serializer {
-  private parseToPrimitive<V, P = any>(value: V): P {
-    let deserialized: any
-
-    try {
-      deserialized = JSON.parse(
-        check(value) === 'string' ? String(value) : JSON.stringify(value),
-      )
-    } catch {
-      deserialized = String(value)
-    }
-
-    return deserialized
+  private isDate<V extends unknown>(value: V): boolean {
+    return !Number.isNaN(Date.parse(String(value)))
   }
 
-  private getPrimitive<V>(value: V): Constructors {
-    return (PRIMITIVES as any)[check(value)]
+  private isTime<V extends unknown>(value: V): boolean {
+    return /^\d{2}:\d{2}:\d{2}\sGMT-\d{4}.+$/.test(String(value))
   }
 
-  private getTypes<V extends any, C extends Constructors>(
-    value: V,
-    type: C = {} as C,
-  ) {
-    return {
-      source: check(value),
-      target: check(type?.prototype),
-    }
+  private isPrimitiveTarget(type?: Constructors): boolean {
+    return Object.keys(PRIMITIVES).includes(
+      String(type?.prototype?.constructor.name).toLowerCase(),
+    )
+  }
+
+  private isSerializable<S extends string, V>(source: S, value: V): boolean {
+    return (
+      ['array', 'object', 'date'].includes(source) || source !== check(value)
+    )
   }
 
   private toArray<V extends Array<any>>(value: V): V {
@@ -50,14 +42,38 @@ class Serializer {
     return source as V
   }
 
-  private isPrimitiveTarget(type?: Constructors): boolean {
-    return Object.keys(PRIMITIVES).includes(
-      String(type?.prototype?.constructor.name).toLowerCase(),
-    )
+  private toDate<V extends any>(value: V): V {
+    return new Date(String(value)) as V
   }
 
-  private isSerializable<S extends string, V>(source: S, value: V): boolean {
-    return ['array', 'object'].includes(source) || source !== check(value)
+  private timeToDateTime<V extends any>(value: V): V {
+    return new Date(
+      new Date(0).toUTCString().replace(/\d{2}:\d{2}:\d{2}.+/, String(value)),
+    ) as V
+  }
+
+  private getPrimitive<V>(value: V): Constructors {
+    return PRIMITIVES[check(value)] as Constructors
+  }
+
+  private valueOf<V, P = any>(value: V): P {
+    let deserialized: any
+
+    try {
+      deserialized = JSON.parse(
+        check(value) === 'string' ? String(value) : JSON.stringify(value),
+      )
+    } catch {
+      if (this.isDate(value)) {
+        deserialized = this.toDate(value)
+      } else if (this.isTime(value)) {
+        deserialized = this.timeToDateTime(value)
+      } else {
+        deserialized = String(value)
+      }
+    }
+
+    return deserialized
   }
 
   public serialize = <V extends unknown>(value: V): string =>
@@ -67,9 +83,12 @@ class Serializer {
     value: unknown,
     Type: Constructors = {} as Constructors,
   ): V => {
-    let deserialized = this.parseToPrimitive(value)
+    let deserialized = this.valueOf(value)
 
-    const types = this.getTypes(value, Type)
+    const types = {
+      source: check(value),
+      target: check(Type?.prototype),
+    }
 
     switch (types.target) {
       case 'array':
@@ -77,6 +96,9 @@ class Serializer {
 
       case 'object':
         return this.toObject(deserialized)
+
+      case 'date':
+        return this.toDate(deserialized)
 
       case 'undefined':
       case 'null':
