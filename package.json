@@ -19,6 +19,7 @@
     "url": "https://github.com/hiukky/chork"
   },
   "scripts": {
+    "prepare": "husky install",
     "prebuild": "rimraf dist",
     "build": "esbuild index.ts --outfile=dist/index.js --bundle --platform=node --minify",
     "dev": "tsnd --respawn index.ts",
@@ -40,7 +41,7 @@
     "@typescript-eslint/eslint-plugin": "^4.28.3",
     "@typescript-eslint/parser": "^4.28.3",
     "esbuild": "^0.12.15",
-    "eslint": "^7.30.0",
+    "eslint": "^7.31.0",
     "eslint-config-airbnb-base": "^14.2.1",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-import": "^2.23.4",
