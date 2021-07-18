@@ -110,6 +110,16 @@ describe('Deserializer', () => {
     })
 
     it('Must deserialize an array and return an Array of all deserialized items.', () => {
+      const hashes = [
+        'V1StGXR8_Z5jdHi6B-myT',
+        '2e7b9b8e-f494-4d75-8d4b-d66ce9b88c00',
+        '74738ff5 5367 e958 1aee 98fffdcd1876 94028007',
+        '0x67452301',
+        '507f1f77bcf86cd799439011',
+        'b89eaac7e61417341b710b727768294d0e6a277b',
+        '8743b52063cd84097a65d1633f5c74f5',
+      ]
+
       const source = [
         1,
         'true',
@@ -117,6 +127,9 @@ describe('Deserializer', () => {
         ['1', '2'],
         '{"a":1,"b":"A","c":true}',
         'Sat Jul 17 2021 17:12:54 GMT-0300 (Brasilia Standard Time)',
+        {
+          hashes,
+        },
         '[]',
       ]
       const expected = [
@@ -126,6 +139,9 @@ describe('Deserializer', () => {
         [1, 2],
         { a: 1, b: 'A', c: true },
         new Date('2021-07-17T20:12:54.000Z'),
+        {
+          hashes,
+        },
         [],
       ]
 

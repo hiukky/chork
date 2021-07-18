@@ -19,6 +19,10 @@ class Serializer {
     return /^\d{2}:\d{2}:\d{2}\sGMT[-+]\d{4}.+$/.test(String(value))
   }
 
+  private isHexadecimal<V extends Idle>(value: V): boolean {
+    return /(0x)?[0-9a-f]+/i.test(String(value))
+  }
+
   private isPrimitiveTarget(type?: Constructors): boolean {
     return Object.keys(PRIMITIVES).includes(
       String(type?.prototype?.constructor.name).toLowerCase(),
@@ -55,7 +59,7 @@ class Serializer {
 
   private timeToDateTime<V extends Idle>(value: V): V {
     return new Date(
-      new Date(0).toUTCString().replace(/\d{2}:\d{2}:\d{2}.+/, String(value)),
+      new Date(0).toString().replace(/\d{2}:\d{2}:\d{2}.+/, String(value)),
     ) as V
   }
 
@@ -76,11 +80,14 @@ class Serializer {
         value: String(value),
       })
 
+      const isThrow = (): boolean =>
+        strict && error.getErrorPosition > 1 && !this.isHexadecimal(value)
+
       if (this.isDate(value)) {
         deserialized = this.toDate(value)
       } else if (this.isTime(value)) {
         deserialized = this.timeToDateTime(value)
-      } else if (strict && error.getErrorPosition > 1) {
+      } else if (isThrow()) {
         throw error
       } else {
         deserialized = String(value)
