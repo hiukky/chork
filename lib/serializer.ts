@@ -1,4 +1,4 @@
-import { Constructors, DeserializerOptions, Idle } from '../src/interfaces'
+import { Type, DeserializerOptions, Idle } from '../src/interfaces'
 import { PRIMITIVES } from '../src/constants'
 import { check } from './check'
 import { SerializerError } from './exception'
@@ -6,7 +6,7 @@ import { SerializerError } from './exception'
 class Serializer {
   private get $options(): Required<DeserializerOptions> {
     return {
-      type: {} as Constructors,
+      type: {} as Type,
       strict: true,
     }
   }
@@ -23,7 +23,7 @@ class Serializer {
     return /(0x)?[0-9a-f]+/i.test(String(value))
   }
 
-  private isPrimitiveTarget(type?: Constructors): boolean {
+  private hasConstructor(type?: Type): boolean {
     return Object.keys(PRIMITIVES).includes(
       String(type?.prototype?.constructor.name).toLowerCase(),
     )
@@ -63,8 +63,8 @@ class Serializer {
     ) as V
   }
 
-  private getPrimitiveOf<V>(value: V): Constructors {
-    return PRIMITIVES[check(value)] as Constructors
+  private getPrimitiveOf<V>(value: V): Type {
+    return PRIMITIVES[check(value)] as Type
   }
 
   private valueOf<V, P = Idle>(value: V, strict: boolean): P {
@@ -104,13 +104,13 @@ class Serializer {
     value: Idle,
     options?: DeserializerOptions,
   ): V => {
-    const { strict, type: Type } = { ...this.$options, ...options }
+    const { strict, type: Target } = { ...this.$options, ...options }
 
     let deserialized = this.valueOf(value, strict)
 
     const types = {
       source: check(value),
-      target: check(Type?.prototype),
+      target: check(Target?.prototype),
     }
 
     switch (types.target) {
@@ -126,8 +126,8 @@ class Serializer {
       case 'undefined':
       case 'null':
       default:
-        if (!this.isPrimitiveTarget(Type)) {
-          return Object.assign(new Type(), deserialized)
+        if (!this.hasConstructor(Target)) {
+          return Object.assign(new Target(), deserialized)
         }
 
         if (this.isSerializable(types.source, deserialized)) {

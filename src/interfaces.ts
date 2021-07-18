@@ -6,7 +6,7 @@ export interface Constructor extends Function {
 
 export type DataTypes = keyof typeof PRIMITIVES
 
-export type Constructors =
+export type Type =
   | typeof PRIMITIVES[Exclude<
       DataTypes,
       'symbol' | 'bigint' | 'undefined' | 'null'
@@ -18,6 +18,6 @@ export type DataTypesOf<V> = Record<keyof V, DataTypes>
 export type Idle = unknown | any
 
 export type DeserializerOptions = {
-  type: Constructors
+  type: Type
   strict?: boolean
 }

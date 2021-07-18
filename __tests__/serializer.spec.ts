@@ -154,6 +154,7 @@ describe('Deserializer', () => {
     const execFor = (value: unknown, expected: Object): void => {
       expect(value).toEqual(expected)
       expect(check(value)).toBe('object')
+      expect(value).toBeInstanceOf(Object)
     }
 
     it('Must deserialize a string JSON to an Object', () => {
