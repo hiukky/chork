@@ -19,19 +19,19 @@ class Serializer {
     return /^\d{2}:\d{2}:\d{2}\sGMT[-+]\d{4}.+$/.test(String(value))
   }
 
-  private isHexadecimal<V extends Idle>(value: V): boolean {
+  private isHash<V extends Idle>(value: V): boolean {
     return /(0x)?[0-9a-f]+/i.test(String(value))
-  }
-
-  private hasConstructor(type?: Type): boolean {
-    return Object.keys(PRIMITIVES).includes(
-      String(type?.prototype?.constructor.name).toLowerCase(),
-    )
   }
 
   private isSerializable<S extends string, V>(source: S, value: V): boolean {
     return (
       ['array', 'object', 'date'].includes(source) || source !== check(value)
+    )
+  }
+
+  private hasConstructor(type?: Type): boolean {
+    return Object.keys(PRIMITIVES).includes(
+      String(type?.prototype?.constructor.name).toLowerCase(),
     )
   }
 
@@ -57,9 +57,9 @@ class Serializer {
     return value instanceof Date ? value : (new Date(String(value)) as V)
   }
 
-  private timeToDateTime<V extends Idle>(value: V): V {
+  private toDateTime<V extends Idle>(value: V): V {
     return new Date(
-      new Date(0).toString().replace(/\d{2}:\d{2}:\d{2}.+/, String(value)),
+      new Date(0).toUTCString().replace(/\d{2}:\d{2}:\d{2}.+/, String(value)),
     ) as V
   }
 
@@ -81,12 +81,12 @@ class Serializer {
       })
 
       const isThrow = (): boolean =>
-        strict && error.getErrorPosition > 1 && !this.isHexadecimal(value)
+        strict && error.getErrorPosition > 1 && !this.isHash(value)
 
       if (this.isDate(value)) {
         deserialized = this.toDate(value)
       } else if (this.isTime(value)) {
-        deserialized = this.timeToDateTime(value)
+        deserialized = this.toDateTime(value)
       } else if (isThrow()) {
         throw error
       } else {

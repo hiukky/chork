@@ -99,6 +99,7 @@ describe('Deserializer', () => {
     const execFor = (value: unknown, expected: any[]): void => {
       expect(value).toEqual(expected)
       expect(check(value)).toBe('array')
+      expect(value).toBeInstanceOf(Array)
     }
 
     it('Must deserialize a string array to an Array', () => {
